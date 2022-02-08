@@ -63,7 +63,7 @@ public class PointControl : MonoBehaviour
                     selB = olObj;
                     selA.transform.parent = selB.transform.parent;
                     selB.transform.parent = selTf;
-                    selA.transform.localScale = new Vector3(2.0f, 2.0f, 2.0f);
+                    selA.transform.localScale = new Vector3(3.0f, 3.0f, 3.0f);
                     selA = null;
                     selB = null;
                     selTf = null;
@@ -76,7 +76,7 @@ public class PointControl : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.gameObject.tag == "Ball") {
+        if (other.gameObject.tag == "My") {
             cir = Instantiate(selectCircle, other.gameObject.transform.position,Quaternion.identity);
 
             if (olObj)
@@ -91,7 +91,7 @@ public class PointControl : MonoBehaviour
 
     private void OnTriggerExit(Collider other)
     {
-        if (other.gameObject.tag == "Ball")
+        if (other.gameObject.tag == "My")
         {
             Destroy(cir);
 

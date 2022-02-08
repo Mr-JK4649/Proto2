@@ -13,13 +13,7 @@ public class ClearCheck : MonoBehaviour
 
     private void Start()
     {
-        answerStr = "";
-
-        foreach (Transform o in ans)
-        {
-            if (o.childCount > 0)
-                answerStr = answerStr + o.GetChild(0).gameObject.name;
-        }
+        SetAnswer();
     }
 
     // Update is called once per frame
@@ -38,11 +32,18 @@ public class ClearCheck : MonoBehaviour
         if (answerStr == playerStr)
         {
             //クリア
-            Debug.Log("クリアァァァッァァアアアアアア");
             Shuffle();
         }
+    }
 
+    void SetAnswer() {
+        answerStr = "";
 
+        foreach (Transform o in ans)
+        {
+            if (o.childCount > 0)
+                answerStr = answerStr + o.GetChild(0).gameObject.name;
+        }
     }
 
     void Shuffle() {
@@ -59,13 +60,7 @@ public class ClearCheck : MonoBehaviour
 
         }
 
-        answerStr = "";
-
-        foreach (Transform o in ans)
-        {
-            if (o.childCount > 0)
-                answerStr = answerStr + o.GetChild(0).gameObject.name;
-        }
+        SetAnswer();
 
         //ステージ数を進める
         sNum++;
