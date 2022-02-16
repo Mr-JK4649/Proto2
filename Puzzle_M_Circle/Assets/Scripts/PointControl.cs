@@ -9,7 +9,7 @@ public class PointControl : MonoBehaviour
     [SerializeField] private float power;
 
     [SerializeField] private GameObject selectCircle;
-    [SerializeField] GameObject cir;
+    //[SerializeField] GameObject cir;
 
     //選択用
     [SerializeField] private Transform c_Select;

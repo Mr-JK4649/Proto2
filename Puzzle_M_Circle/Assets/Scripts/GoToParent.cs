@@ -55,7 +55,8 @@ public class GoToParent : MonoBehaviour
 
     //選択サークル表示
     public void ShowSelectCircle(GameObject cir) {
-        s_circle = Instantiate(cir);
+        if(s_circle == null)
+            s_circle = Instantiate(cir, transform.position, Quaternion.identity);
     }
 
     public void FadeSelectCircle() {
