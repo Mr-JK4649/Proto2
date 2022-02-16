@@ -9,7 +9,7 @@ public class ClearCheck : MonoBehaviour
     [SerializeField] string playerStr;       //プレイヤーオブジェクトの名前を並べたもの
 
     [SerializeField] private Text stageNum;
-    private int sNum = 1;
+    private int sNum = 0;
 
     private void Start()
     {
@@ -46,6 +46,17 @@ public class ClearCheck : MonoBehaviour
         }
     }
 
+    void SetRandomSide() {
+        foreach (Transform t in ans) {
+
+            GameObject g = t.GetChild(0).gameObject;
+
+            int num = Random.Range(0, 2);
+            g.GetComponent<GoToParent>().ChangeMat(num);
+
+        }
+    }
+
     void Shuffle() {
         int n = ans.Length;
 
@@ -59,6 +70,9 @@ public class ClearCheck : MonoBehaviour
             ans[n].GetChild(0).gameObject.transform.parent = ans[k];
 
         }
+
+        //表か裏か決めるやつ
+        SetRandomSide();
 
         SetAnswer();
 
