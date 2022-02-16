@@ -21,7 +21,7 @@ public class PointControl : MonoBehaviour
     [SerializeField] private Transform selTf;
 
     //ぽいんたーが重なってるオブジェ
-    [SerializeField] private GameObject olObj;
+    //[SerializeField] private GameObject olObj;
 
     //角度
     [SerializeField] private float ang;
@@ -64,14 +64,9 @@ public class PointControl : MonoBehaviour
                 {
                     GoToParent gp = o.GetComponent<GoToParent>();
 
-                    olObj = null;
-
                     //魔法陣の中心からdist分の範囲内に入ったら
                     if (Vector3.Distance(ppos, o.transform.position) < dist)
                     {
-
-                        //うんこ
-                        olObj = o;
 
                         //選択サークルを出させる
                         gp.ShowSelectCircle(selectCircle);
@@ -82,49 +77,52 @@ public class PointControl : MonoBehaviour
                         //Bボタンで反転処理
                         if (Input.GetButtonDown("Fire2"))
                             gp.ChangeColor();
+
+                        //Aボタン選択
+                        {
+
+                            //されてない状態
+                            if (!isSelect)
+                            {
+                                if (Input.GetButtonDown("Fire1") || Input.GetButtonDown("Jump"))
+                                {
+                                    selA = o;                                   //選択したオブジェ保存
+                                    selTf = selA.transform.parent;              //1個目の親オブジェ
+                                    selA.transform.parent = c_Select;           //選択位置に移動
+
+                                    isSelect = true;                            //選択フラグを立てる
+
+                                }
+                            }
+                            else //されてる状態
+                            {
+                                if (Input.GetButtonDown("Fire1") || Input.GetButtonDown("Jump"))
+                                {
+                                    selB = o;
+                                    selA.transform.parent = selB.transform.parent;
+                                    selB.transform.parent = selTf;
+                                    selA.transform.localScale = new Vector3(3.0f, 3.0f, 3.0f);
+                                    selA = null;
+                                    selB = null;
+                                    selTf = null;
+                                    isSelect = false;
+                                }
+                            }
+
+                        }
                     }
                     else {  //入って無ければ
                         gp.FadeSelectCircle();
                     }
 
-                    //Aボタン選択
-                    {
+                    
 
-                        //されてない状態
-                        if (!isSelect)
-                        {
-                            if (Input.GetButtonDown("Fire1") || Input.GetButtonDown("Jump"))
-                            {
-                                selA = olObj;                               //選択したオブジェ保存
-                                selTf = selA.transform.parent;              //1個目の親オブジェ
-                                selA.transform.parent = c_Select;           //選択位置に移動
-
-                                isSelect = true;                            //選択フラグを立てる
-
-                                //Instantiate(selectCircle, selTf.position, Quaternion.identity);
-                            }
-                        }
-                        else //されてる状態
-                        {
-                            if (Input.GetButtonDown("Fire1") || Input.GetButtonDown("Jump"))
-                            {
-                                selB = olObj;
-                                selA.transform.parent = selB.transform.parent;
-                                selB.transform.parent = selTf;
-                                selA.transform.localScale = new Vector3(3.0f, 3.0f, 3.0f);
-                                selA = null;
-                                selB = null;
-                                selTf = null;
-                                isSelect = false;
-                            }
-                        }
-
-                    }
                 }
             }
         }
 
         
+
     }
 
     //private void OnTriggerEnter(Collider other)
