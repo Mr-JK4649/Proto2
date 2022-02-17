@@ -11,6 +11,9 @@ public class ClearCheck : MonoBehaviour
     [SerializeField] private Text stageNum;
     private int sNum = 0;
 
+    [SerializeField] GameObject clearEffe;
+    [SerializeField] Transform effePos;
+
     private void Start()
     {
         SetAnswer();
@@ -34,6 +37,7 @@ public class ClearCheck : MonoBehaviour
         {
             //クリア
             Shuffle();
+            Instantiate(clearEffe, effePos);
         }
 
     }
