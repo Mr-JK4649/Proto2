@@ -9,7 +9,7 @@ public class PointControl : MonoBehaviour
     [SerializeField] private float power;
 
     [SerializeField] private GameObject selectCircle;
-    //[SerializeField] GameObject cir;
+    [SerializeField] GameObject selectCircle2;
 
     //選択用
     [SerializeField] private Transform c_Select;
@@ -33,21 +33,30 @@ public class PointControl : MonoBehaviour
     private GameObject[] circles;
     private int num;
 
+    //前回選択してたオブジェクト(カーソル位置固定用)
+    GameObject oldOverlapObject;
+
     // Start is called before the first frame update
     void Start()
     {
         tf = transform;
 
         RegisterCircles();
+
+        oldOverlapObject = circles[0];
     }
+
+    GameObject circleA = null;
 
     void Update()
     {
+
         float hori = Input.GetAxis("Horizontal");
         float vert = Input.GetAxis("Vertical");
         Vector3 ppos = new Vector3(hori * power, vert * power, 0);
 
-        tf.position = ppos;
+        //tf.position = ppos;
+        tf.position = oldOverlapObject.transform.position;
 
         //スティックの角度を求める
         ang = Mathf.Atan2(vert, hori) * 180 / Mathf.PI;
@@ -64,19 +73,26 @@ public class PointControl : MonoBehaviour
                 {
                     GoToParent gp = o.GetComponent<GoToParent>();
 
+                    if(Vector3.Distance(ppos, o.transform.position) < dist)
+                    {
+                        //最近選択していたオブジェクト
+                        oldOverlapObject = o;
+                    }
+
                     //魔法陣の中心からdist分の範囲内に入ったら
-                    if (Vector3.Distance(ppos, o.transform.position) < dist)
+                    if (Vector3.Distance(tf.position, o.transform.position) < dist)
                     {
 
                         //選択サークルを出させる
                         gp.ShowSelectCircle(selectCircle);
 
                         //吸いつき
-                        tf.position = o.transform.position;
+                        //tf.position = o.transform.position;
 
                         //Bボタンで反転処理
                         if (Input.GetButtonDown("Fire2"))
                             gp.ChangeColor();
+
 
                         //Aボタン選択
                         {
@@ -88,9 +104,10 @@ public class PointControl : MonoBehaviour
                                 {
                                     selA = o;                                   //選択したオブジェ保存
                                     selTf = selA.transform.parent;              //1個目の親オブジェ
-                                    selA.transform.parent = c_Select;           //選択位置に移動
+                                    //selA.transform.parent = c_Select;           //選択位置に移動
 
                                     isSelect = true;                            //選択フラグを立てる
+                                    circleA = Instantiate(selectCircle2, selA.transform.position, Quaternion.identity);
 
                                 }
                             }
@@ -106,10 +123,15 @@ public class PointControl : MonoBehaviour
                                     selB = null;
                                     selTf = null;
                                     isSelect = false;
+                                    Destroy(circleA);
                                 }
                             }
 
+                            
+
                         }
+
+                        
                     }
                     else {  //入って無ければ
                         gp.FadeSelectCircle();
@@ -119,39 +141,16 @@ public class PointControl : MonoBehaviour
 
                 }
             }
-        }
 
-        
+            
+        }
 
     }
 
-    //private void OnTriggerEnter(Collider other)
-    //{
-    //    if (other.gameObject.tag == "My") {
-    //        cir = Instantiate(selectCircle, other.gameObject.transform.position,Quaternion.identity);
-
-    //        if (olObj)
-    //        {
-    //            if (olObj.transform.parent == c_Select)
-    //                return;
-    //        }
-
-    //        olObj = other.gameObject;
-    //    }
-    //}
-
-    //private void OnTriggerExit(Collider other)
-    //{
-    //    if (other.gameObject.tag == "My")
-    //    {
-    //        Destroy(cir);
-
-    //        olObj = null;
-    //    }
-    //}
 
     public void RegisterCircles() {
         circles = GameObject.FindGameObjectsWithTag("My");
         num = circles.Length;
     }
+
 }
