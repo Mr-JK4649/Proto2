@@ -11,6 +11,9 @@ public class PointControl : MonoBehaviour
     [SerializeField] private GameObject selectCircle;
     [SerializeField] GameObject selectCircle2;
 
+    //元の位置
+    private Vector3 oriPos;
+
     //選択用
     [SerializeField] private Transform c_Select;
     [SerializeField] private GameObject selA;
@@ -41,6 +44,8 @@ public class PointControl : MonoBehaviour
     {
         tf = transform;
 
+        oriPos = tf.position;
+
         RegisterCircles();
 
         oldOverlapObject = circles[0];
@@ -53,7 +58,7 @@ public class PointControl : MonoBehaviour
 
         float hori = Input.GetAxis("Horizontal");
         float vert = Input.GetAxis("Vertical");
-        Vector3 ppos = new Vector3(hori * power, vert * power, 0);
+        Vector3 ppos = oriPos + new Vector3(hori * power, vert * power, 0);
 
         //tf.position = ppos;
         tf.position = oldOverlapObject.transform.position;
@@ -66,7 +71,7 @@ public class PointControl : MonoBehaviour
         {
 
             //ポインターが一定以上の範囲に出た時
-            if (Vector3.Distance(Vector3.zero, ppos) > 0.3f)
+            if (Vector3.Distance(Vector3.zero, tf.position) > 0.3f)
             {
 
                 foreach (GameObject o in circles)
@@ -95,41 +100,7 @@ public class PointControl : MonoBehaviour
 
 
                         //Aボタン選択
-                        {
-
-                            //されてない状態
-                            if (!isSelect)
-                            {
-                                if (Input.GetButtonDown("Fire1") || Input.GetButtonDown("Jump"))
-                                {
-                                    selA = o;                                   //選択したオブジェ保存
-                                    selTf = selA.transform.parent;              //1個目の親オブジェ
-                                    //selA.transform.parent = c_Select;           //選択位置に移動
-
-                                    isSelect = true;                            //選択フラグを立てる
-                                    circleA = Instantiate(selectCircle2, selA.transform.position, Quaternion.identity);
-
-                                }
-                            }
-                            else //されてる状態
-                            {
-                                if (Input.GetButtonDown("Fire1") || Input.GetButtonDown("Jump"))
-                                {
-                                    selB = o;
-                                    selA.transform.parent = selB.transform.parent;
-                                    selB.transform.parent = selTf;
-                                    selA.transform.localScale = new Vector3(3.0f, 3.0f, 3.0f);
-                                    selA = null;
-                                    selB = null;
-                                    selTf = null;
-                                    isSelect = false;
-                                    Destroy(circleA);
-                                }
-                            }
-
-                            
-
-                        }
+                        SelectCircle(o);
 
                         
                     }
@@ -151,6 +122,38 @@ public class PointControl : MonoBehaviour
     public void RegisterCircles() {
         circles = GameObject.FindGameObjectsWithTag("My");
         num = circles.Length;
+    }
+
+    public void SelectCircle(GameObject obj) {
+        //されてない状態
+        if (!isSelect)
+        {
+            if (Input.GetButtonDown("Fire1") || Input.GetButtonDown("Jump"))
+            {
+                selA = obj;                                   //選択したオブジェ保存
+                selTf = selA.transform.parent;              //1個目の親オブジェ
+                                                            //selA.transform.parent = c_Select;           //選択位置に移動
+
+                isSelect = true;                            //選択フラグを立てる
+                circleA = Instantiate(selectCircle2, selA.transform.position, Quaternion.identity);
+
+            }
+        }
+        else //されてる状態
+        {
+            if (Input.GetButtonDown("Fire1") || Input.GetButtonDown("Jump"))
+            {
+                selB = obj;
+                selA.transform.parent = selB.transform.parent;
+                selB.transform.parent = selTf;
+                selA.transform.localScale = new Vector3(3.0f, 3.0f, 3.0f);
+                selA = null;
+                selB = null;
+                selTf = null;
+                isSelect = false;
+                Destroy(circleA);
+            }
+        }
     }
 
 }

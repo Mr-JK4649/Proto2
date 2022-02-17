@@ -51,6 +51,10 @@ public class GoToParent : MonoBehaviour
 
             transform.Rotate(new Vector3(0, curAngleY, 0));
         }
+
+        //選択サークルの位置を魔法陣に合わせる
+        if(s_circle)
+            s_circle.transform.position = transform.position;
     }
 
     //選択サークル表示

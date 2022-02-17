@@ -29,11 +29,13 @@ public class ClearCheck : MonoBehaviour
             }
         }
 
+        //名前完全一致型クリアチェック
         if (answerStr == playerStr)
         {
             //クリア
             Shuffle();
         }
+
     }
 
     void SetAnswer() {
