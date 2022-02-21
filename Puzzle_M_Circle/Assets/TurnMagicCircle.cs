@@ -19,7 +19,6 @@ public class TurnMagicCircle : MonoBehaviour
     {
         Vector3 pos = GameObject.Find("Two").transform.localPosition;
         OriDis = Vector2.Distance(Vector2.zero, new Vector2(pos.x, pos.z)); 
-        Debug.Log("OriDis : " + OriDis);
     }
 
     void Update()

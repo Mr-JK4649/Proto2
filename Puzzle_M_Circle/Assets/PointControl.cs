@@ -5,12 +5,11 @@ using UnityEngine;
 public class PointControl : MonoBehaviour
 {
 
-    Vector3 ori_Pos;    //ポインターの最初の座標(起点)
     Transform tf;
     [SerializeField] private float power;
 
     [SerializeField] private GameObject selectCircle;
-    [SerializeField] GameObject cir;
+    [SerializeField] GameObject selectCircle2;
 
     //選択用
     [SerializeField] private Transform c_Select;
@@ -22,80 +21,163 @@ public class PointControl : MonoBehaviour
     [SerializeField] private Transform selTf;
 
     //ぽいんたーが重なってるオブジェ
-    [SerializeField] private GameObject olObj;
+    //[SerializeField] private GameObject olObj;
+
+    //角度
+    [SerializeField] private float ang;
+
+    //吸いつき範囲
+    [SerializeField, Range(0, 100)] private float dist = 1.5f;
+
+    //ゲームオブジェクト用
+    private GameObject[] circles;
+    private int num;
+
+    //前回選択してたオブジェクト(カーソル位置固定用)
+    GameObject oldOverlapObject;
 
     // Start is called before the first frame update
     void Start()
     {
-        ori_Pos = transform.position;   //初期位置の保存
         tf = transform;
+
+        RegisterCircles();
+
+        oldOverlapObject = circles[0];
     }
+
+    GameObject circleA = null;
 
     void Update()
     {
+
         float hori = Input.GetAxis("Horizontal");
         float vert = Input.GetAxis("Vertical");
+        Vector3 ppos = new Vector3(hori * power, vert * power, 0);
 
-        tf.position = new Vector3(hori * power, vert * power, 0);
+        //tf.position = ppos;
+        //tf.position = oldOverlapObject.transform.position;
 
-        //選択
-        if (cir)
+        //スティックの角度を求める
+        //ang = Mathf.Atan2(vert, hori) * 180 / Mathf.PI;
+        if (ang < 0) ang = 360.0f + ang;
+
+        //吸いつき
         {
 
-            //されてない状態
-            if (!isSelect)
+            //ポインターが一定以上の範囲に出た時
+            if (Vector3.Distance(Vector3.zero, tf.position) > 0.3f)
             {
-                if (Input.GetButtonDown("Fire1"))
-                {
-                    selA = olObj;                               //選択したオブジェ保存
-                    selTf = selA.transform.parent;              //1個目の親オブジェ
-                    selA.transform.parent = c_Select;           //選択位置に移動
-                    
-                    isSelect = true;                            //選択フラグを立てる
 
-                    //Instantiate(selectCircle, selTf.position, Quaternion.identity);
+                foreach (GameObject o in circles)
+                {
+                    GoToParent gp = o.GetComponent<GoToParent>();
+
+                    if (Vector3.Distance(tf.position, o.transform.position) < dist)
+                    {
+                        //最近選択していたオブジェクト
+                        oldOverlapObject = o;
+                    }
+
+                    //魔法陣の中心からdist分の範囲内に入ったら
+                    if (Vector3.Distance(tf.position, o.transform.position) < dist)
+                    {
+
+                        //選択サークルを出させる
+                        gp.ShowSelectCircle(selectCircle);
+
+                        //吸いつき
+                        //tf.position = o.transform.position;
+
+                        //Bボタンで反転処理
+                        if (Input.GetButtonDown("Fire2"))
+                            gp.ChangeColor();
+
+
+                        //Aボタン選択
+                        SelectCircle(o);
+
+
+                    }
+                    else
+                    {  //入って無ければ
+                        gp.FadeSelectCircle();
+                    }
+
+
+
                 }
             }
-            else //されてる状態
-            {
-                if (Input.GetButtonDown("Fire1"))
-                {
-                    selB = olObj;
-                    selA.transform.parent = selB.transform.parent;
-                    selB.transform.parent = selTf;
-                    selA.transform.localScale = new Vector3(3.0f, 3.0f, 3.0f);
-                    selA = null;
-                    selB = null;
-                    selTf = null;
-                    isSelect = false;
-                }
-            }
+
 
         }
+
     }
 
-    private void OnTriggerEnter(Collider other)
+    public void RegisterCircles()
     {
-        if (other.gameObject.tag == "My") {
-            cir = Instantiate(selectCircle, other.gameObject.transform.position,Quaternion.identity);
-
-            if (olObj)
-            {
-                if (olObj.transform.parent == c_Select)
-                    return;
-            }
-
-            olObj = other.gameObject;
-        }
+        circles = GameObject.FindGameObjectsWithTag("My");
+        num = circles.Length;
     }
 
-    private void OnTriggerExit(Collider other)
+    [SerializeField]int selNum = 0;
+    public void SelectCircle(GameObject obj)
     {
-        if (other.gameObject.tag == "My")
+        //されてない状態
+        if (!isSelect)
         {
-            Destroy(cir);
+            if (Input.GetButtonDown("Fire1") || Input.GetButtonDown("Jump"))
+            {
+                selA = obj;                                   //選択したオブジェ保存
+                selTf = selA.transform.parent;              //1個目の親オブジェ
+                                                            //selA.transform.parent = c_Select;           //選択位置に移動
+                selNum = 0;
 
-            olObj = null;
+                isSelect = true;                            //選択フラグを立てる
+                //circleA = Instantiate(selectCircle2, selA.transform.position, Quaternion.identity);
+
+            }
+        }
+        else //されてる状態
+        {
+            if(Input.GetButtonDown("Fire4") || Input.GetButtonDown("Fire5")){
+                if (Input.GetButtonDown("Fire4")){
+                    selNum--;
+                }
+                else if (Input.GetButtonDown("Fire5"))
+                {
+                    selNum++;
+                }
+            }
+            if (Input.GetButtonDown("Fire1") || Input.GetButtonDown("Jump"))
+            {
+                if (selNum < 0)
+                {
+                    while(selNum < 0)
+                    {
+                        selNum += 5;
+                    }
+                }
+                selNum = selNum % 5;
+
+                GameObject Maci = GameObject.Find("CentralCircle");
+
+                GameObject Destination = selA;
+
+                Maci.transform.GetChild(0).GetChild(0).parent = Maci.transform.GetChild(selNum);
+                selA.transform.parent = Maci.transform.GetChild(0);
+
+                //selB = obj;
+                //selA.transform.parent = selB.transform.parent;
+                //selB.transform.parent = selTf;
+                //selA.transform.localScale = new Vector3(3.0f, 3.0f, 3.0f);
+                selA = null;
+                selB = null;
+                selTf = null;
+                isSelect = false;
+                Destroy(circleA);
+            }
         }
     }
+
 }

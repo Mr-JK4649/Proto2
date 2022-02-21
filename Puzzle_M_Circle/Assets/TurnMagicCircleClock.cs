@@ -19,7 +19,6 @@ public class TurnMagicCircleClock : MonoBehaviour
     {
         Vector3 pos = GameObject.Find("Two").transform.localPosition;
         OriDis = Vector2.Distance(Vector2.zero, new Vector2(pos.x, pos.z));
-        Debug.Log("OriDis : " + OriDis);
     }
 
     void Update()
@@ -32,34 +31,19 @@ public class TurnMagicCircleClock : MonoBehaviour
 
     private void TrunSelect()
     {
-        foreach (Transform child in this.transform)
+        if (!canLeftTurn && !canRightTurn)
         {
-            float ang = GetAngle(Vector2.zero, new Vector2(child.localPosition.x, child.localPosition.z));
-
-            if (Input.GetButton("Fire4"))
-            {
-                ang += 2 * Mathf.PI * Time.deltaTime;
+            if (Input.GetButtonDown("Fire5")&& (Input.GetButtonDown("Fire4"))){
+                return;
             }
-            if (Input.GetButton("Fire5"))
+               if (Input.GetButtonDown("Fire5"))
             {
-                ang -= 2 * Mathf.PI * Time.deltaTime;
+                canRightTurn = true;
             }
-            float posX = Mathf.Cos(ang) * OriDis;      //X軸の設定
-            float posZ = Mathf.Sin(ang) * OriDis;      //Z軸の設定
-
-            child.localPosition = new Vector3(posX, 0, posZ);
-        }
-        if (Input.GetButton("Fire4"))
-        {
-            RightTrun();
-        }
-        if (Input.GetButton("Fire5"))
-        {
-            LeftTrun();
-        }
-        if (canLeftTurn && !canRightTurn)
-        {
-
+            if (Input.GetButtonDown("Fire4"))
+            {
+                canLeftTurn = true;
+            }
         }
     }
 
@@ -72,7 +56,7 @@ public class TurnMagicCircleClock : MonoBehaviour
 
         if (canLeftTurn)
         {
-
+            LeftTrun();
         }
     }
 
@@ -82,26 +66,83 @@ public class TurnMagicCircleClock : MonoBehaviour
         float rad = Mathf.Atan2(dt.y, dt.x);
         float degree = rad * Mathf.Rad2Deg;
 
-        return rad;
+        return degree;
     }
 
+    float Notmuch = 72.0f;
     void RightTrun()
     {
+        float TrunNum = 360.0f * Time.deltaTime;
+        Notmuch -= TrunNum;
 
-    }
-
-    void LeftTrun()
-    {
         foreach (Transform child in this.transform)
         {
             float ang = GetAngle(Vector2.zero, new Vector2(child.localPosition.x, child.localPosition.z));
 
-            float posX = Mathf.Cos(ang) * OriDis;      //X軸の設定
-            float posZ = Mathf.Sin(ang) * OriDis;      //Z軸の設定
+            if (Notmuch < TrunNum)
+            {
+                ang -= Notmuch + TrunNum;
+                canRightTurn = false;
+            }
+            else
+            {
+                ang -= TrunNum;
+            }
 
-            ang -= 2 * Mathf.PI * Time.deltaTime;
+            float rad = Mathf.Deg2Rad * ang;
 
-            child.localPosition = new Vector3(posX, 0, posZ);
+            float posX = Mathf.Cos(rad) * OriDis;      //X軸の設定
+            float posZ = Mathf.Sin(rad) * OriDis;      //Z軸の設定
+            //child.localPosition = new Vector3(posX, 0, posZ);
+        }
+        if (!canRightTurn)
+        {
+            Notmuch = 72.0f;
+            
+            var start = transform.GetChild(0);
+            transform.GetChild(0).GetChild(0).parent = transform.GetChild(1);
+            transform.GetChild(1).GetChild(0).parent = transform.GetChild(2);
+            transform.GetChild(2).GetChild(0).parent = transform.GetChild(3);
+            transform.GetChild(3).GetChild(0).parent = transform.GetChild(4);
+            transform.GetChild(4).GetChild(0).parent = start;
+
+        }
+    }
+
+    void LeftTrun()
+    {
+        float TrunNum = 360.0f * Time.deltaTime;
+        Notmuch -= TrunNum;
+
+        foreach (Transform child in this.transform)
+        {
+            float ang = GetAngle(Vector2.zero, new Vector2(child.localPosition.x, child.localPosition.z));
+
+            if (Notmuch < TrunNum)
+            {
+                ang += Notmuch + TrunNum;
+                canLeftTurn = false;
+            }
+            else
+            {
+                ang += TrunNum;
+            }
+
+            float rad = Mathf.Deg2Rad * ang;
+
+            float posX = Mathf.Cos(rad) * OriDis;      //X軸の設定
+            float posZ = Mathf.Sin(rad) * OriDis;      //Z軸の設定
+            //child.localPosition = new Vector3(posX, 0, posZ);
+        }
+        if (!canLeftTurn)
+        {
+            Notmuch = 72.0f;
+            var last = transform.GetChild(4);
+            transform.GetChild(4).GetChild(0).parent = transform.GetChild(3);
+            transform.GetChild(3).GetChild(0).parent = transform.GetChild(2);
+            transform.GetChild(2).GetChild(0).parent = transform.GetChild(1);
+            transform.GetChild(1).GetChild(0).parent = transform.GetChild(0);
+            transform.GetChild(0).GetChild(0).parent = last;
         }
     }
 }
